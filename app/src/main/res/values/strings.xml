@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Haminibar Login</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="login_button">ENTER NOW</string>
+    <string name="sign_up_button">I AM NEW HERE</string>
+    <string name="login_placeholder">TYPE YOUR PHONE NUMBER</string>
+    <string name="login_hint">TYPE YOUR PHONE NUMBER</string>
+    <string name="title_activity_menu_grid">menu_grid</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>

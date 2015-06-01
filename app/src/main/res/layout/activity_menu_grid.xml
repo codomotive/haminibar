@@ -1,0 +1,145 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:background="#0099cc"
+    tools:context="com.codomotive.haminibarlogin.menu_grid">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:background="#e00012">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ham_button"
+            android:background="@drawable/hamburgur" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView2"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/logo_red" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="HI DORON"
+            android:id="@+id/menu_welcome_user"
+            android:layout_alignTop="@+id/imageView2"
+            android:layout_alignEnd="@+id/menu_balance"
+            android:paddingTop="12dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/background_light" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Your Current Balnce is 100$"
+            android:id="@+id/menu_balance"
+            android:layout_alignBottom="@+id/imageView2"
+            android:layout_toStartOf="@+id/imageView2"
+            android:paddingBottom="13dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/background_light" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/darker_gray"
+        android:id="@+id/ham_drawer">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:background="#ffff643c">
+
+                <ImageButton
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ham_back"
+                    android:background="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentBottom="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Your Order"
+                    android:id="@+id/textView"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_toEndOf="@+id/ham_back"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:textSize="35dp"
+                    android:textIsSelectable="true"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Balance $50"
+                    android:id="@+id/ham_balance"
+                    android:layout_below="@+id/textView"
+                    android:layout_alignParentEnd="true"
+                    android:layout_toEndOf="@+id/ham_back"
+                    android:gravity="center_vertical|center_horizontal" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stretchColumns="3"
+        android:id="@+id/invoice_table"
+        android:layout_gravity="left|center_vertical">
+
+        <TableRow android:id="@+id/main_row"
+            style="@style/invoice_row">
+
+            <TextView
+                android:text="#"
+                android:id="@+id/textView5"
+                style="@style/invoice_col_1" />
+
+            <TextView
+                android:text="NAME"
+                android:id="@+id/textView2"
+                style="@style/invloice_col_2" />
+
+            <TextView
+                android:text="Q"
+                android:id="@+id/textView3"
+                style="@style/invoice_col_3" />
+
+            <TextView
+                android:text="PRICE"
+                android:id="@+id/textView4"
+                style="@style/invoice_col_4" />
+
+        </TableRow>
+    </TableLayout>
+
+</FrameLayout>
