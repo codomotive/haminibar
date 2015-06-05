@@ -9,6 +9,11 @@
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/foodscroll" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -107,39 +112,9 @@
             </RelativeLayout>
 
         </LinearLayout>
+
     </RelativeLayout>
 
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:stretchColumns="3"
-        android:id="@+id/invoice_table"
-        android:layout_gravity="left|center_vertical">
 
-        <TableRow android:id="@+id/main_row"
-            style="@style/invoice_row">
-
-            <TextView
-                android:text="#"
-                android:id="@+id/textView5"
-                style="@style/invoice_col_1" />
-
-            <TextView
-                android:text="NAME"
-                android:id="@+id/textView2"
-                style="@style/invloice_col_2" />
-
-            <TextView
-                android:text="Q"
-                android:id="@+id/textView3"
-                style="@style/invoice_col_3" />
-
-            <TextView
-                android:text="PRICE"
-                android:id="@+id/textView4"
-                style="@style/invoice_col_4" />
-
-        </TableRow>
-    </TableLayout>
 
 </FrameLayout>

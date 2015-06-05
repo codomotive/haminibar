@@ -4,10 +4,15 @@ import com.codomotive.haminibarlogin.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,12 +20,18 @@ import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.InputStream;
 
 
 public class menu_grid extends Activity {
@@ -83,7 +94,7 @@ public class menu_grid extends Activity {
         });
 
         //dynamic table row adding
-        TableLayout invoice=(TableLayout)this.findViewById(R.id.invoice_table);
+        /*TableLayout invoice=(TableLayout)this.findViewById(R.id.invoice_table);
         TableRow trow= new TableRow(this);
         trow.setId(10);
         trow.setLayoutParams(new TableRow.LayoutParams(
@@ -132,9 +143,91 @@ public class menu_grid extends Activity {
 
         invoice.addView(trow, new TableLayout.LayoutParams(
                 TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.WRAP_CONTENT));
+                TableRow.LayoutParams.WRAP_CONTENT));*/
+
+
+        //Creating gridlayout and inflating the scroll view with it
+
+        /*stub module for json. using hardcoded image urls to fill up the gridlayout*/
+        String[] urls = {"http://images.bigoven.com/image/upload/t_recipe-256/hummus-9.jpg",
+                "http://www.inisrael.com/news/wp-content/uploads/2008/06/steak.jpg",
+                "http://images.bigoven.com/image/upload/t_recipe-256/hummus-9.jpg",
+                "http://www.fabulousfingerfood.com.au/italian1.jpg",
+                "https://s-media-cache-ak0.pinimg.com/236x/34/7b/74/347b745ef9f0e392ada61fe17ad8aa5f.jpg",
+                "http://images.bigoven.com/image/upload/t_recipe-256/hummus-9.jpg"
+
+
+        };
+
+        ScrollView foodscroll = (ScrollView)findViewById(R.id.foodscroll);
+        GridLayout gl; //defining a gridlayout object
+        gl = new GridLayout(menu_grid.this);
+        gl.setLayoutParams(new LayoutParams
+                (LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        gl.setOrientation(0);
+        gl.setColumnCount(3);
+        int k=Math.round((urls.length) / 3);
+        int total=urls.length;
+        DisplayMetrics displayMetrics = menu_grid.this.getResources().getDisplayMetrics();
+
+        float dpHeight = displayMetrics.heightPixels;// displayMetrics.density;
+        float dpWidth = displayMetrics.widthPixels; // displayMetrics.density;
+        int grid_wd=Math.round((dpWidth-10)/3);
+        gl.setRowCount(k);
+        //ImageView[] food_images= new ImageView[urls.length];
+        for(int i =0, c = 0, r = 0; i < total; i++, c++)
+        {
+            if(c == 3)//number of coloumns
+            {
+                c = 0;
+                r++;
+            }
+            ImageView food_images = new ImageView(this);
+            //food_images[i].setImageResource(R.drawable.ic_launcher);
+            new ImageDownloader(food_images).execute(urls[i]);
+            GridLayout.LayoutParams param =new GridLayout.LayoutParams();
+            param.height = LayoutParams.WRAP_CONTENT;
+            param.width = grid_wd; //LayoutParams.WRAP_CONTENT;
+            param.rightMargin = 5;
+            param.topMargin = 5;
+            param.setGravity(Gravity.CENTER);
+            param.columnSpec = GridLayout.spec(c);
+            param.rowSpec = GridLayout.spec(r);
+            food_images.setLayoutParams(param);
+            gl.addView(food_images);
+        }
+
+        //View child = getLayoutInflater().inflate(R.layout.child, null);
+        foodscroll.addView(gl);
+
+
 
     }
+    //Image downloader class
+    class ImageDownloader extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public ImageDownloader(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String url = urls[0];
+            Bitmap mIcon = null;
+            try {
+                InputStream in = new java.net.URL(url).openStream();
+                mIcon = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+            }
+            return mIcon;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
+    }
+
 
     public void ham_drawer(Boolean x)
     {
@@ -203,7 +296,7 @@ public class menu_grid extends Activity {
                     // Right to left swipe action
                     else
                     {
-                       // Toast.makeText(this, "Right to Left swipe [Previous]", Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(this, "Right to Left swipe [Previous]", Toast.LENGTH_SHORT).show();
                         ham_drawer(false);
                     }
 
