@@ -7,6 +7,9 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +27,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
@@ -172,7 +176,7 @@ public class menu_grid extends Activity {
 
         float dpHeight = displayMetrics.heightPixels;// displayMetrics.density;
         float dpWidth = displayMetrics.widthPixels; // displayMetrics.density;
-        int grid_wd=Math.round((dpWidth-10)/3);
+        int grid_wd=Math.round((dpWidth-20)/3);
         gl.setRowCount(k);
         //ImageView[] food_images= new ImageView[urls.length];
         for(int i =0, c = 0, r = 0; i < total; i++, c++)
@@ -182,9 +186,38 @@ public class menu_grid extends Activity {
                 c = 0;
                 r++;
             }
+            /*
+            * FOOD MENU UI DESIGN
+            *
+            * (imageView + textView)--> LinearLayout --> LinearLayout --> gridlayout
+            *
+            * */
+            LinearLayout super_food_container = new LinearLayout(this); // Linear layout parent so that margin can be set to child Linear layout
+            super_food_container.setOrientation(LinearLayout.VERTICAL);
+            //setting layoutparams
+            LayoutParams super_cont_params= new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+            super_food_container.setLayoutParams(super_cont_params);
+
+            //creating child linearlayout
+
+            LinearLayout food_container = new LinearLayout(this);
+            food_container.setOrientation(LinearLayout.VERTICAL);
+            // Setting Params. Using LinearLayout.layoutparams against only layoutparams for additional  options
+            LinearLayout.LayoutParams cont_params= new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+            if(c==0)
+                cont_params.setMargins(5,2,2,3);
+            else if(c==1)
+                cont_params.setMargins(3,2,3,3);
+            else if(c==2)
+                cont_params.setMargins(2,2,5,3);
+            food_container.setLayoutParams(cont_params);
+            TextView food_name= new TextView(this);
+            LayoutParams food_desc_params= new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+            food_name.setText("Long name of food :" + i);
+            food_name.setLayoutParams(food_desc_params);
             ImageView food_images = new ImageView(this);
             //food_images[i].setImageResource(R.drawable.ic_launcher);
-            new ImageDownloader(food_images).execute(urls[i]);
+            new ImageDownloader(food_images).execute(urls[0]);
             GridLayout.LayoutParams param =new GridLayout.LayoutParams();
             param.height = LayoutParams.WRAP_CONTENT;
             param.width = grid_wd; //LayoutParams.WRAP_CONTENT;
@@ -194,7 +227,10 @@ public class menu_grid extends Activity {
             param.columnSpec = GridLayout.spec(c);
             param.rowSpec = GridLayout.spec(r);
             food_images.setLayoutParams(param);
-            gl.addView(food_images);
+            food_container.addView(food_images);
+            food_container.addView(food_name);
+            super_food_container.addView(food_container);
+            gl.addView(super_food_container);
         }
 
         //View child = getLayoutInflater().inflate(R.layout.child, null);
@@ -224,7 +260,54 @@ public class menu_grid extends Activity {
         }
 
         protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
+            //bmImage.setImageBitmap(scaleImage(result));
+            bmImage.setImageDrawable(scaleImage(result));
+        }
+
+        private BitmapDrawable scaleImage(Bitmap bitmap)
+        {
+
+
+            // Get current dimensions AND the desired bounding box
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            int bounding = dpToPx(250);
+            Log.i("Test", "original width = " + Integer.toString(width));
+            Log.i("Test", "original height = " + Integer.toString(height));
+            Log.i("Test", "bounding = " + Integer.toString(bounding));
+
+            // Determine how much to scale: the dimension requiring less scaling is
+            // closer to the its side. This way the image always stays inside your
+            // bounding box AND either x/y axis touches it.
+            float xScale = ((float) bounding) / width;
+            float yScale = ((float) bounding) / height;
+            float scale = (xScale <= yScale) ? xScale : yScale;
+            Log.i("Test", "xScale = " + Float.toString(xScale));
+            Log.i("Test", "yScale = " + Float.toString(yScale));
+            Log.i("Test", "scale = " + Float.toString(scale));
+
+            // Create a matrix for the scaling and add the scaling data
+            Matrix matrix = new Matrix();
+            matrix.postScale(scale, scale);
+
+            // Create a new bitmap and convert it to a format understood by the ImageView
+            Bitmap scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+            width = scaledBitmap.getWidth(); // re-use
+            height = scaledBitmap.getHeight(); // re-use
+            BitmapDrawable result = new BitmapDrawable(scaledBitmap);
+            Log.i("Test", "scaled width = " + Integer.toString(width));
+            Log.i("Test", "scaled height = " + Integer.toString(height));
+
+
+            return (result);
+
+
+        }
+
+        private int dpToPx(int dp)
+        {
+            float density = getApplicationContext().getResources().getDisplayMetrics().density;
+            return Math.round((float)dp * density);
         }
     }
 
