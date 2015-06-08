@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,7 +36,18 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import static java.lang.Integer.parseInt;
 
 
 public class menu_grid extends Activity {
@@ -44,6 +56,10 @@ public class menu_grid extends Activity {
     RelativeLayout ham_layout;
     ImageButton ham_button;
     ImageButton ham_back;
+    TableLayout invoice;
+    ArrayList<String> item_ids = new ArrayList<String>();
+    HashMap<String,Integer> invoice_map=new HashMap<String,Integer>();
+    HashMap<String,Float> price_map=new HashMap<String,Float>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +69,7 @@ public class menu_grid extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_menu_grid);
+        invoice=(TableLayout)this.findViewById(R.id.invoice_table);
 
         Bundle extras=getIntent().getExtras();
         String welcomeuser="Hi "+extras.getString("user_name");
@@ -82,8 +99,10 @@ public class menu_grid extends Activity {
                 //ham_layout.setVisibility(RelativeLayout.VISIBLE);
                 if(ham_open)
                     ham_drawer(false);
-                else
+                else {
                     ham_drawer(true);
+                    add_to_menu("125", (float) 25.5, "Chicken Cutlet");
+                }
 
             }
         });
@@ -97,57 +116,6 @@ public class menu_grid extends Activity {
             }
         });
 
-        //dynamic table row adding
-        /*TableLayout invoice=(TableLayout)this.findViewById(R.id.invoice_table);
-        TableRow trow= new TableRow(this);
-        trow.setId(10);
-        trow.setLayoutParams(new TableRow.LayoutParams(
-                TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.WRAP_CONTENT));
-        TextView row_no=new TextView(this);
-        row_no.setId(11);
-        row_no.setText("11");
-        row_no.setHeight(40);
-        row_no.setWidth(30);
-        row_no.setTextSize(19);
-        row_no.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
-        row_no.setTextColor(Color.BLACK);
-
-        TextView name=new TextView(this);
-        name.setId(12);
-        name.setText("Food Name");
-        name.setHeight(40);
-        name.setWidth(130);
-        name.setTextSize(19);
-        name.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
-        name.setTextColor(Color.BLACK);
-
-        TextView quantity=new TextView(this);
-        quantity.setId(13);
-        quantity.setText("2");
-        quantity.setHeight(40);
-        quantity.setWidth(50);
-        quantity.setTextSize(19);
-        quantity.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
-        quantity.setTextColor(Color.BLACK);
-
-        TextView price=new TextView(this);
-        price.setId(14);
-        price.setText("25$");
-        price.setHeight(40);
-        price.setWidth(70);
-        price.setTextSize(19);
-        price.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
-        price.setTextColor(Color.BLACK);
-
-        trow.addView(row_no);
-        trow.addView(name);
-        trow.addView(quantity);
-        trow.addView(price);
-
-        invoice.addView(trow, new TableLayout.LayoutParams(
-                TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.WRAP_CONTENT));*/
 
 
         //Creating gridlayout and inflating the scroll view with it
@@ -326,6 +294,144 @@ public class menu_grid extends Activity {
         }
     }
 
+    public void add_to_menu(String item_id,Float item_price, String item_name)
+    {
+        //add item_id to array
+        if(item_ids.contains(item_id))
+        {
+            //the item is already added. Increase the quantity
+            Integer q_id= parseInt(item_id.toString());
+            TextView quantity=(TextView)findViewById(q_id+3);
+
+            //add quantity to invoice_map
+            Integer inv_map_quantity=invoice_map.get(item_id);
+            Integer new_inv_map_quantity=inv_map_quantity+1;
+            invoice_map.remove(item_id);
+            invoice_map.put(item_id, new_inv_map_quantity);
+
+            quantity.setText(Integer.toString(new_inv_map_quantity));
+        }
+        else
+        {
+            //new item is being added to invoice. Proceed accordingly
+            item_ids.add(item_id);
+            //dynamic table row adding
+            TableRow trow= new TableRow(this);
+            trow.setId(parseInt(item_id));
+            trow.setLayoutParams(new TableRow.LayoutParams(
+                    TableRow.LayoutParams.WRAP_CONTENT,
+                    TableRow.LayoutParams.WRAP_CONTENT));
+            TextView row_no=new TextView(this);
+            row_no.setId(parseInt(item_id) + 1);
+            int size=item_ids.size();
+            row_no.setText(Integer.toString(size));
+            row_no.setHeight(40);
+            row_no.setWidth(30);
+            row_no.setTextSize(19);
+            row_no.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            row_no.setTextColor(Color.BLACK);
+
+            TextView name=new TextView(this);
+            name.setId(parseInt(item_id) + 2);
+            name.setText(item_name);
+            name.setHeight(40);
+            name.setWidth(130);
+            name.setTextSize(19);
+            name.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            name.setTextColor(Color.BLACK);
+
+            TextView quantity=new TextView(this);
+            quantity.setId(parseInt(item_id) + 3);
+            quantity.setText("1");
+            quantity.setHeight(40);
+            quantity.setWidth(50);
+            quantity.setTextSize(19);
+            quantity.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            quantity.setTextColor(Color.BLACK);
+
+            TextView price=new TextView(this);
+            price.setId(parseInt(item_id) + 4);
+            price.setText(item_price.toString());
+            price.setHeight(40);
+            price.setWidth(70);
+            price.setTextSize(19);
+            price.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            price.setTextColor(Color.BLACK);
+
+            trow.addView(row_no);
+            trow.addView(name);
+            trow.addView(quantity);
+            trow.addView(price);
+
+            invoice.addView(trow, new TableLayout.LayoutParams(
+                    TableRow.LayoutParams.WRAP_CONTENT,
+                    TableRow.LayoutParams.WRAP_CONTENT));
+
+            //add the new item to invoice map
+            invoice_map.put(item_id,1);
+            price_map.put(item_id,item_price);
+
+        }
+
+        calculate_invoice_total();
+
+    }
+
+    public void calculate_invoice_total()
+    {
+        float total=0;
+        Iterator it = invoice_map.entrySet().iterator();
+        while(it.hasNext())
+        {
+            Map.Entry pair = (Map.Entry)it.next();
+            String value=pair.getValue().toString();
+            float price=price_map.get(pair.getKey());
+
+            Float quantity= Float.parseFloat(value);
+            total= (price*quantity) + total;
+        }
+        String total_str=Float.toString(total)+"$";
+        TextView invoice_total=(TextView)findViewById(R.id.invoice_total);
+        invoice_total.setText(total_str);
+    }
+
+    public void remove_from_menu(String item_id)
+    {
+        if(invoice_map.containsKey(item_id))
+        {
+            Integer quantity=invoice_map.get(item_id);
+            if(quantity==1)
+            {
+                //delete the item from invoice
+                invoice_map.remove(item_id);
+                item_ids.remove(item_id);
+                delete_invoice_row(item_id);
+            }
+            else
+            {
+                //decrease the quantity
+                Integer new_quantity=quantity-1;
+                invoice_map.remove(item_id);
+                invoice_map.put(item_id, new_quantity);
+                TextView quantity_textview=(TextView)findViewById(parseInt(item_id)+3);
+                quantity_textview.setText(new_quantity.toString());
+            }
+
+            calculate_invoice_total();
+
+        }
+    }
+
+    public void delete_invoice_row(String item_id)
+    {
+        TableRow trow=(TableRow)findViewById(parseInt(item_id));
+        trow.removeAllViews();
+
+        TableLayout table=(TableLayout)findViewById(R.id.invoice_table);
+        table.removeView(trow);
+    }
+
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -381,6 +487,7 @@ public class menu_grid extends Activity {
                     {
                         // Toast.makeText(this, "Right to Left swipe [Previous]", Toast.LENGTH_SHORT).show();
                         ham_drawer(false);
+                        remove_from_menu("125");
                     }
 
                 }
