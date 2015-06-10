@@ -1,5 +1,6 @@
 package com.codomotive.haminibarlogin;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -45,6 +46,8 @@ public class MainSettingsLogin extends ActionBarActivity {
                     {
                         //login success
                         Toast.makeText(getApplicationContext(), "login suucee", Toast.LENGTH_SHORT).show();
+                        Intent intent=new Intent(MainSettingsLogin.this,MainSettings.class);
+                        startActivity(intent);
                     }
                     else
                     {

@@ -37,6 +37,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codomotive.haminibarlogin.MainActivity" />
         </activity>
+        <activity
+            android:name=".MainSettings"
+            android:label="@string/title_activity_main_settings"
+            android:parentActivityName=".MainSettingsLogin" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.codomotive.haminibarlogin.MainSettingsLogin" />
+        </activity>
     </application>
 
 </manifest>

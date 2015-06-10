@@ -1,0 +1,8 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/spinner_dropdown_layout" android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp" android:padding="3dp"
+    android:layout_width="fill_parent" android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:textColor="@android:color/background_dark"
+    android:textSize="25dp" />
+<!--THough this file is named spinner layout, but in reality this is the layout of spinner dropdown lis-->
