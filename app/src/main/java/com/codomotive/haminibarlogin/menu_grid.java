@@ -4,6 +4,8 @@ import com.codomotive.haminibarlogin.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -51,7 +53,7 @@ import static java.lang.Integer.parseInt;
 
 
 public class menu_grid extends Activity {
-
+    SQLiteDatabase db;
     Boolean ham_open=false;
     RelativeLayout ham_layout;
     ImageButton ham_button;
@@ -71,12 +73,36 @@ public class menu_grid extends Activity {
         setContentView(R.layout.activity_menu_grid);
         invoice=(TableLayout)this.findViewById(R.id.invoice_table);
 
-        Bundle extras=getIntent().getExtras();
-        String welcomeuser="Hi "+extras.getString("user_name");
-        String due=extras.getString("due");
-        String balance=extras.getString("balance");
+        //get current user info from database
+        db = openOrCreateDatabase("haminibar", this.MODE_PRIVATE, null);
+        Cursor cursor=db.rawQuery("SELECT value FROM settings WHERE name='current_user_id'",null);
+        String user_id=null;
+        if(cursor.moveToFirst()) {
+            user_id = cursor.getString(0);
+        }
+        String user_name=null;
+        cursor=db.rawQuery("SELECT value FROM settings WHERE name='current_user_name'", null);
+        if(cursor.moveToFirst()) {
+            user_name = cursor.getString(0);
+        }
+        Float user_balance = null;
+        cursor=db.rawQuery("SELECT value FROM settings WHERE name='current_user_balance'", null);
+        if(cursor.moveToFirst()) {
+            String temp = cursor.getString(0);
+            user_balance=Float.parseFloat(temp);
+        }
+        Float user_due=null;
+        cursor=db.rawQuery("SELECT value FROM settings WHERE name='current_user_due'", null);
+        if(cursor.moveToFirst()) {
+           String temp = cursor.getString(0);
+            user_due=Float.parseFloat(temp);
+        }
+
+        String welcomeuser="Hi "+user_name;
+        String due=user_due.toString();
+        String balance=user_balance.toString();
         String userbal;
-        if(due.equals("0"))
+        if(user_due==0)
             userbal=balance;
         else
             userbal="-"+due;

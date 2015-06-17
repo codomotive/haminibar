@@ -1,5 +1,7 @@
 package com.codomotive.haminibarlogin;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -8,7 +10,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -30,24 +34,56 @@ import java.util.List;
 public class MainSettings extends ActionBarActivity {
 
     HashMap<String,String> ref_map=new HashMap<String,String>();
+    Button ref_save;
+    SQLiteDatabase db;
+    String selected_ref_id;
+    String selected_ref_name;
+    TextView current_ref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_settings);
+        ref_save=(Button)findViewById(R.id.ref_save);
+        ref_save.setVisibility(Button.GONE);
+        db = openOrCreateDatabase("haminibar", this.MODE_PRIVATE, null);
+        current_ref=(TextView)findViewById(R.id.current_ref);
+        Cursor cursor=db.rawQuery("SELECT value FROM settings WHERE name='refrigerator_name'",null);
+        String refrigerator_name=null;
+        if(cursor.moveToFirst()) {
+            refrigerator_name = cursor.getString(0);
+            if(refrigerator_name.equals("0"))
+            {
+                current_ref.setText("None");
+            }
+            else
+            {
+                current_ref.setText(refrigerator_name);
+            }
+        }
         new get_refrigerators().execute(4);
 
         final Spinner ref_spinner=(Spinner)findViewById(R.id.ref_spinner);
         ref_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selected_ref_id=ref_map.get(ref_spinner.getSelectedItem().toString());
-                Toast.makeText(getApplicationContext(),selected_ref_id,Toast.LENGTH_SHORT).show();
+                selected_ref_id=ref_map.get(ref_spinner.getSelectedItem().toString());
+                selected_ref_name=ref_spinner.getSelectedItem().toString();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
+            }
+        });
+
+        ref_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                db.execSQL("UPDATE settings SET value='"+selected_ref_id+"' WHERE name='refrigerator_id'");
+                db.execSQL("UPDATE settings SET value='"+selected_ref_name+"' WHERE name='refrigerator_name'");
+                Toast.makeText(getApplicationContext(),"Saved.",Toast.LENGTH_SHORT).show();
+                current_ref.setText(selected_ref_name);
             }
         });
     }
@@ -124,6 +160,7 @@ public class MainSettings extends ActionBarActivity {
                 ArrayAdapter<String> adapter=new ArrayAdapter<String>(getApplicationContext(),R.layout.spinner_original_layout,ref_list);
                 adapter.setDropDownViewResource(R.layout.spinner_layout);
                 ref_spinner.setAdapter(adapter);
+                ref_save.setVisibility(Button.VISIBLE);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

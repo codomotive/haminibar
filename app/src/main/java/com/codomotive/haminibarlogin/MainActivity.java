@@ -1,5 +1,11 @@
 package com.codomotive.haminibarlogin;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -28,6 +34,8 @@ import static android.widget.Toast.*;
 
 public class MainActivity extends ActionBarActivity {
 
+    SQLiteDatabase db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -35,6 +43,8 @@ public class MainActivity extends ActionBarActivity {
 
 
         setContentView(R.layout.activity_main);
+
+
 
         //login button code
        final Button login_button=(Button)findViewById(R.id.login);
@@ -54,6 +64,53 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
+
+        //check if app is running for the first time
+        final String PREFS_NAME = "MyPrefsFile";
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+
+        if (settings.getBoolean("HaminibarFirst", true)) {
+            //the app is being launched for first time, do something
+
+            // first time task
+            //create necessary database and insert required data in the database
+            db = openOrCreateDatabase("haminibar", this.MODE_PRIVATE, null);
+            db.execSQL("CREATE TABLE IF NOT EXISTS settings(name VARCHAR,value VARCHAR);");
+            db.execSQL("INSERT into settings values ('refrigerator_id','0');");
+            db.execSQL("INSERT into settings values ('refrigerator_name','0');");
+
+            //db.execSQL("CREATE TABLE IF NOT EXISTS food_sales(id VARCHAR,user_id VARCHAR,timestamp TIMESTAMP,total_amount FLOAT,products TEXT,remaining_balance FLOAT,server_updated INTEGER);");
+
+            //db.execSQL("CREATE TABLE IF NOT EXISTS users(user_id VARCHAR,phone VARCHAR,name VARCHAR,balance FLOAT,due FLOAT,server_updated INTEGER);");
+            // record the fact that the app has been started at least once
+            settings.edit().putBoolean("HaminibarFirst", false).commit();
+        }
+        else
+        {
+            db = openOrCreateDatabase("haminibar", this.MODE_PRIVATE, null);
+        }
+        db.execSQL("INSERT OR REPLACE INTO settings (name,value) values ('current_user_id','0');");
+        db.execSQL("INSERT OR REPLACE INTO settings (name,value) values ('current_user_name','0');");
+        db.execSQL("INSERT OR REPLACE INTO settings (name,value) values ('current_user_balance','0');");
+        db.execSQL("INSERT OR REPLACE INTO settings (name,value) values ('current_user_due','0');");
+
+        //check if internet is available
+        if(!isNetworkAvailable())
+        {
+            Toast.makeText(this,"NO INTERNET CONNECTION!",Toast.LENGTH_LONG).show();
+        }
+
+        //check if Refrigerator is selected
+        Cursor cursor=db.rawQuery("SELECT value FROM settings WHERE name='refrigerator_id'",null);
+        String refrigerator_id=null;
+        if(cursor.moveToFirst()) {
+            refrigerator_id = cursor.getString(0);
+            if(refrigerator_id.equals("0"))
+            {
+                Toast.makeText(this,"REFRIGERATOR IS NOT SELECTED. Please go to SETTINGS.",Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
 
@@ -147,19 +204,27 @@ public class MainActivity extends ActionBarActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                //save user as current user in settings table of the database
+                db.execSQL("UPDATE settings SET value='"+user_id+"' WHERE name='current_user_id'");
+                db.execSQL("UPDATE settings SET value='"+user_name+"' WHERE name='current_user_name'");
+                db.execSQL("UPDATE settings SET value='"+balance+"' WHERE name='current_user_balance'");
+                db.execSQL("UPDATE settings SET value='"+due+"' WHERE name='current_user_due'");
+
                 Toast.makeText(getApplicationContext(),"Welcome "+user_name,Toast.LENGTH_SHORT).show();
                 Intent intent;
                 intent=new Intent(MainActivity.this,menu_grid.class);
-                intent.putExtra("user_name",user_name);
-                intent.putExtra("user_id",user_id);
-                intent.putExtra("balance",balance);
-                intent.putExtra("due",due);
                 startActivity(intent);
             }
 
         }
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

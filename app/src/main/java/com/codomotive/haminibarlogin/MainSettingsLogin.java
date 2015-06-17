@@ -45,7 +45,6 @@ public class MainSettingsLogin extends ActionBarActivity {
                     if(username_val.equals(actual_admin) && password_val.equals(actual_password))
                     {
                         //login success
-                        Toast.makeText(getApplicationContext(), "login suucee", Toast.LENGTH_SHORT).show();
                         Intent intent=new Intent(MainSettingsLogin.this,MainSettings.class);
                         startActivity(intent);
                     }
